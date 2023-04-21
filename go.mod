@@ -1,4 +1,4 @@
-module github.com/ypopivniak/go-redis-queue
+module github.com/ypopivniak/queue
 
 go 1.17
 
