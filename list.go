@@ -6,19 +6,31 @@ import (
 	"time"
 )
 
-type Options struct {
-	Timeout time.Duration
+type Option func(*options)
+
+type options struct {
+	dequeueTimeoutSeconds time.Duration
+}
+
+// WithDequeueTimeout sets timeout of enqueue operation, default indefinitely
+func WithDequeueTimeout(t time.Duration) Option {
+	return func(o *options) {
+		o.dequeueTimeoutSeconds = t
+	}
 }
 
 type ListQueue struct {
-	Redis rediser
-	opt   *Options
+	redis Rediser
+	opt   *options
 }
 
-func NewListQueue(redis rediser, opt *Options) *ListQueue {
+func NewListQueue(redis Rediser, opts ...Option) *ListQueue {
 	queue := &ListQueue{
-		Redis: redis,
-		opt:   opt,
+		redis: redis,
+		opt:   new(options),
+	}
+	for _, opt := range opts {
+		opt(queue.opt)
 	}
 	return queue
 }
@@ -32,11 +44,11 @@ func (q *ListQueue) Dequeue(ctx context.Context, queue string, value interface{}
 }
 
 func (q *ListQueue) Flush(ctx context.Context, queue string) error {
-	return q.Redis.Del(ctx, queue).Err()
+	return q.redis.Del(ctx, queue).Err()
 }
 
 func (q *ListQueue) Len(ctx context.Context, queue string) int {
-	return int(q.Redis.LLen(ctx, queue).Val())
+	return int(q.redis.LLen(ctx, queue).Val())
 }
 
 func (q *ListQueue) enqueue(ctx context.Context, queue string, value interface{}) error {
@@ -44,11 +56,11 @@ func (q *ListQueue) enqueue(ctx context.Context, queue string, value interface{}
 	if err != nil {
 		return err
 	}
-	return q.Redis.LPush(ctx, queue, b).Err()
+	return q.redis.LPush(ctx, queue, b).Err()
 }
 
 func (q *ListQueue) dequeue(ctx context.Context, queue string, value interface{}) error {
-	cmd := q.Redis.BRPop(ctx, q.opt.Timeout, queue)
+	cmd := q.redis.BRPop(ctx, q.opt.dequeueTimeoutSeconds, queue)
 	if cmd.Err() != nil {
 		return cmd.Err()
 	}

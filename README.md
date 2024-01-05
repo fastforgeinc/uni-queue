@@ -1,26 +1,13 @@
-# Redis queue library for Golang
+# Universal queue library for Golang
 
-go-redis-queue library defines basic `Queue` interface implements queues using:
+uni-queue library defines basic `Queue` interface that implements queues using:
 - Redis [Lists](https://redis.io/docs/data-types/lists/) - `ListQueue`
 - Redis [Streams](https://redis.io/docs/data-types/streams/) - `StreamQueue` (TBD)
-
-It uses
-[MessagePack](https://github.com/vmihailenco/msgpack) to marshal values.
+- AWS [SQS](https://aws.amazon.com/sqs/) - `SQS` (TBD)
 
 ## Installation
-
-go-redis-queue supports 2 last Go versions and requires a Go version with
-[modules](https://github.com/golang/go/wiki/Modules) support. So make sure to initialize a Go
-module:
-
 ```shell
-go mod init github.com/my/repo
-```
-
-And then install go-redis-queue:
-
-```shell
-go get github.com/ypopivniak/go-redis-queue
+go get github.com/ypopivniak/uni-queue
 ```
 
 ## Quickstart
@@ -30,12 +17,11 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/ypopivniak/go-redis-queue"
+	"github.com/ypopivniak/uni-queue"
 )
 
 type Object struct {
@@ -45,14 +31,18 @@ type Object struct {
 
 func main() {
 	ctx := context.TODO()
-	
+
 	// Construct ®Redis client
 	client := redis.NewClient(&redis.Options{
 		Addr: "localhost:6379",
 	})
-	
+
 	// Construct ListQueue
-	q := queue.NewListQueue(client, &queue.Options{})
+	q := queue.NewListQueue(client)
+
+	// Construct ListQueue with dequeue timeout
+	timeout := time.Second
+	q := queue.NewListQueue(client, queue.WithDequeueTimeout(timeout))
 
 	// Enqueue value
 	input := Object{"foo", 69}

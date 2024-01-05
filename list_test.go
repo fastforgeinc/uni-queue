@@ -26,7 +26,7 @@ func setupTest() (func(), context.Context, *redis.Client, *ListQueue) {
 	client := redis.NewClient(&redis.Options{
 		Addr: addr,
 	})
-	queue := NewListQueue(client, &Options{})
+	queue := NewListQueue(client)
 
 	return func() {
 		log.Println("teardown test")
