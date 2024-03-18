@@ -7,7 +7,7 @@ uni-queue library defines basic `Queue` interface that implements queues using:
 
 ## Installation
 ```shell
-go get github.com/ypopivniak/uni-queue
+go get github.com/fastforgeinc/uni-queue
 ```
 
 ## Quickstart
@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/ypopivniak/uni-queue"
+	"github.com/fastforgeinc/uni-queue"
 )
 
 type Object struct {
