@@ -1,10 +1,10 @@
-module github.com/ypopivniak/uni-queue
+module github.com/fastforgeinc/uni-queue
 
 go 1.19
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	github.com/vmihailenco/msgpack/v5 v5.4.1
 )
 
